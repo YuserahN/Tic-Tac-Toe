@@ -61,10 +61,14 @@ class Wins {
             int playAgain = JOptionPane.showOptionDialog(null, "YOU WIN! Game Over!",
                 "Click a button",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+            if(playAgain == 1) {
+                System.exit(0);
+            } else if (playAgain == 0) {
+                GameBoard.initBoard();
+            }
         }
     }
 }
-
 
 class DrawingFrame extends JFrame implements ActionListener {
     Player p1, p2;
@@ -95,17 +99,44 @@ class DrawingFrame extends JFrame implements ActionListener {
             Random rnd = new Random();
             if(cell.getText() == "_") {
                 cell.setText(p1.getSymbol());
+                pl1 += Arrays.asList(eachCell).indexOf(cell);
+                Wins.checkWin(pl1);
                 int randomCell = rnd.nextInt(9);
                 int i = 8;
                 if (eachCell[randomCell].getText() != "_") {
                     randomCell = rnd.nextInt(9);
                     i--; 
                 } else {
-                    eachCell[randomCell].setText("O");
+                    eachCell[randomCell].setFont(new Font("Serif", Font.BOLD, 48));
+                    eachCell[randomCell].setText(p2.getSymbol());
+                    eachCell[randomCell].setEnabled(false);
+                    pl2 += Arrays.asList(eachCell).indexOf(eachCell[randomCell]);
+                    Wins.checkWin(pl2);
                 }
             }
         }
         cell.setEnabled(false);        
+    }
+    public void setupMenu() {
+        JMenuBar mbar = new JMenuBar();
+        JMenu mnuFile = new JMenu("File");
+        JMenuItem miRestart = new JMenuItem("Restart");
+        miRestart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                GameBoard.initBoard();
+            }
+        });
+        mnuFile.add(miRestart);
+        JMenuItem miExit = new JMenuItem("Exit");
+        miExit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        mnuFile.add(miExit);
+        mbar.add(mnuFile);
+
+        setJMenuBar(mbar);
     }
     public void setupUI() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -121,6 +152,7 @@ class DrawingFrame extends JFrame implements ActionListener {
             gameBoard.add(eachCell[i]);
         }
         c.add(gameBoard,BorderLayout.CENTER);
+        setupMenu();
     }
     public DrawingFrame(Player p1, Player p2, boolean multiPlayer) {
         this.p1 = p1;
@@ -130,15 +162,26 @@ class DrawingFrame extends JFrame implements ActionListener {
     }
 }
 
-public class DinTicTacToe {
-    public static void main (String[] args) {
+class GameBoard {
+    public static void initBoard() {
         boolean multiPlayer = false;
-        String[] options = {"Multi Player", "Single Player"};
+        Player p1, p2;
+        String[] playerOptions = {"Multi Player", "Single Player"};
         int gameMode = JOptionPane.showOptionDialog(null, "Choose Player Mode",
                 "Click a button",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
-        Player p1 = new Player("X", 0);
-        Player p2 = new Player("O", 0);
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, playerOptions, playerOptions[0]);
+        String[] symbolOptions = {"X", "O"};
+        int chosenSymbol = JOptionPane.showOptionDialog(null, "Choose A Symbol For Player 1",
+                "Click a button",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, symbolOptions, symbolOptions[0]);
+        if(chosenSymbol == 0) {
+            p1 = new Player("X", 0);
+            p2 = new Player("O", 0);
+        } else {
+            p1 = new Player("O", 0);
+            p2 = new Player("X", 0);
+        }
+        
         if(gameMode == 0) {
             multiPlayer = true;
         } else {
@@ -146,5 +189,11 @@ public class DinTicTacToe {
         }
         DrawingFrame frm = new DrawingFrame(p1, p2, multiPlayer);
         frm.setVisible(true);
+    }
+}
+
+public class DinTicTacToe {
+    public static void main (String[] args) {
+        GameBoard.initBoard();
     }
 }
